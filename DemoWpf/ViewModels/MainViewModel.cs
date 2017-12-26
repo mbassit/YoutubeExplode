@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using Microsoft.Win32;
@@ -17,7 +18,7 @@ namespace DemoWpf.ViewModels
         private readonly YoutubeClient _client;
 
         private bool _isBusy;
-        private string _query;
+        private string _query = "https://www.youtube.com/watch?v=dRZv355zZ1g";
         private Video _video;
         private Channel _channel;
         private MediaStreamInfoSet _mediaStreamInfos;
@@ -121,27 +122,36 @@ namespace DemoWpf.ViewModels
 
         private async void GetData()
         {
-            IsBusy = true;
-            IsProgressIndeterminate = true;
+            try
+            {
+                IsBusy = true;
+                IsProgressIndeterminate = true;
 
-            // Reset data
-            Video = null;
-            Channel = null;
-            MediaStreamInfos = null;
-            ClosedCaptionTrackInfos = null;
+                // Reset data
+                Video = null;
+                Channel = null;
+                MediaStreamInfos = null;
+                ClosedCaptionTrackInfos = null;
 
-            // Parse URL if necessary
-            if (!YoutubeClient.TryParseVideoId(Query, out var videoId))
-                videoId = Query;
+                // Parse URL if necessary
+                if (!YoutubeClient.TryParseVideoId(Query, out var videoId))
+                    videoId = Query;
 
-            // Get data
-            Video = await _client.GetVideoAsync(videoId);
-            Channel = await _client.GetVideoAuthorChannelAsync(videoId);
-            MediaStreamInfos = await _client.GetVideoMediaStreamInfosAsync(videoId);
-            ClosedCaptionTrackInfos = await _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
+                // Get data
+                Video = await _client.GetVideoAsync(videoId);
+                Channel = await _client.GetVideoAuthorChannelAsync(videoId);
+                MediaStreamInfos = await _client.GetVideoMediaStreamInfosAsync(videoId);
+                ClosedCaptionTrackInfos = await _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
 
-            IsBusy = false;
-            IsProgressIndeterminate = false;
+                IsBusy = false;
+                IsProgressIndeterminate = false;
+            }
+            catch (Exception ex)
+            {
+                IsBusy = false;
+                IsProgressIndeterminate = false;
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private async void DownloadMediaStream(MediaStreamInfo info)
@@ -170,7 +180,7 @@ namespace DemoWpf.ViewModels
 
             var progressHandler = new Progress<double>(p => Progress = p);
             await _client.DownloadMediaStreamAsync(info, filePath, progressHandler);
-
+            System.Media.SystemSounds.Asterisk.Play();
             IsBusy = false;
             Progress = 0;
         }
