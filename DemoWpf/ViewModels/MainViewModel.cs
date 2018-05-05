@@ -1,4 +1,13 @@
-﻿using System;
+﻿/* [5-May-2018, first time ever updated my forked GitHub repo with original author's repo] 
+ * NB: To update my forked GitHub repo with the work done by the original author in his repo, I followed this tutorial: https://help.github.com/articles/syncing-a-fork
+ * Basically:
+ * 1) CD intro your forked repo
+ * 2) Add the original author's repo as a new remote repository called "upstream" (sintax is "git remote add <shortname> <url>", e.g. "git remote add upstream https://github.com/ORIGINAL_OWNER/ORIGINAL_REPOSITORY.git"
+ * 3) Fetch (put could be a normal pull, right?) the remote repo called "upstream": git fetch upstream (this will create a local branch called "upstream/master")
+ * 4) Now merge "upstream/master" into whatever you want, eg. your forked repo master branch (and then push if you want this to be sent to your remote branch on GitHub)
+*/
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows;
