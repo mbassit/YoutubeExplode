@@ -3,7 +3,8 @@
  * Basically:
  * 1) CD intro your forked repo
  * 2) Add the original author's repo as a new remote repository called "upstream" (sintax is "git remote add <shortname> <url>", e.g. "git remote add upstream https://github.com/ORIGINAL_OWNER/ORIGINAL_REPOSITORY.git"
- * 3) Fetch (but could be a normal pull, right?) the remote repo called "upstream": git fetch upstream (this will create a local branch called "upstream/master")
+ * 3) Fetch the remote repo called "upstream": git fetch upstream (this will create a local branch called "upstream/master"). NB: tried a normal pull from TortoiseGit and it works,
+ *    just select "upstream" in the Remote drop down in the Pull dialog, which logs this: git.exe pull --progress -v --no-rebase "upstream" master
  * 4) Now merge "upstream/master" into whatever you want, eg. your forked repo master branch (and then push if you want this to be sent to your remote branch on GitHub)
  * TODO: merge from my master to myCustomizations branch 
 */
