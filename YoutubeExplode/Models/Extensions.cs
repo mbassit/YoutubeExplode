@@ -11,7 +11,7 @@ namespace YoutubeExplode.Models
         /// <summary>
         /// Gets the regular URL of a video.
         /// </summary>
-        public static string GetRegularUrl(this Video video)
+        public static string GetUrl(this Video video)
         {
             video.GuardNotNull(nameof(video));
             return $"https://www.youtube.com/watch?v={video.Id}";
@@ -38,7 +38,7 @@ namespace YoutubeExplode.Models
         /// <summary>
         /// Gets the regular URL of a playlist.
         /// </summary>
-        public static string GetRegularUrl(this Playlist playlist)
+        public static string GetUrl(this Playlist playlist)
         {
             playlist.GuardNotNull(nameof(playlist));
             return $"https://www.youtube.com/playlist?list={playlist.Id}";
@@ -81,6 +81,60 @@ namespace YoutubeExplode.Models
         {
             channel.GuardNotNull(nameof(channel));
             return $"https://www.youtube.com/channel/{channel.Id}";
+        }
+
+        /// <summary>
+        /// Gets ID of a playlist that consists of similar videos.
+        /// </summary>
+        public static string GetVideoMixPlaylistId(this Video video)
+        {
+            video.GuardNotNull(nameof(video));
+            return "RD" + video.Id;
+        }
+
+        /// <summary>
+        /// Gets ID of a playlist that consists of similar videos from the same channel.
+        /// </summary>
+        public static string GetChannelVideoMixPlaylistId(this Video video)
+        {
+            video.GuardNotNull(nameof(video));
+            return "UL" + video.Id;
+        }
+
+        /// <summary>
+        /// Gets ID of a playlist that consists of this channel's uploads.
+        /// </summary>
+        public static string GetChannelVideosPlaylistId(this Channel channel)
+        {
+            channel.GuardNotNull(nameof(channel));
+            return "UU" + channel.Id.SubstringAfter("UC");
+        }
+
+        /// <summary>
+        /// Gets ID of a playlist that consists of this channel's popular uploads.
+        /// </summary>
+        public static string GetPopularChannelVideosPlaylistId(this Channel channel)
+        {
+            channel.GuardNotNull(nameof(channel));
+            return "PU" + channel.Id.SubstringAfter("UC");
+        }
+
+        /// <summary>
+        /// Gets ID of a playlist that consists of this channel's liked videos.
+        /// </summary>
+        public static string GetLikedVideosPlaylistId(this Channel channel)
+        {
+            channel.GuardNotNull(nameof(channel));
+            return "LL" + channel.Id.SubstringAfter("UC");
+        }
+
+        /// <summary>
+        /// Gets ID of a playlist that consists of this channel's favorite videos.
+        /// </summary>
+        public static string GetFavoritesPlaylistId(this Channel channel)
+        {
+            channel.GuardNotNull(nameof(channel));
+            return "FL" + channel.Id.SubstringAfter("UC");
         }
     }
 }

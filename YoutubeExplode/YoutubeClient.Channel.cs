@@ -4,18 +4,49 @@ using System.Linq;
 using System.Threading.Tasks;
 using YoutubeExplode.Exceptions;
 using YoutubeExplode.Internal;
+using YoutubeExplode.Internal.Parsers;
 using YoutubeExplode.Models;
 
 namespace YoutubeExplode
 {
     public partial class YoutubeClient
     {
-        /// <summary>
-        /// Gets channel information by ID.
-        /// </summary>
+        private async Task<UserPageParser> GetUserPageParserAsync(string username)
+        {
+            username = username.UrlEncode();
+
+            var url = $"https://www.youtube.com/user/{username}";
+            var raw = await _httpClient.GetStringAsync(url).ConfigureAwait(false);
+
+            return UserPageParser.Initialize(raw);
+        }
+
+        /// <inheritdoc />
+        public async Task<string> GetChannelIdAsync(string username)
+        {
+            username.GuardNotNull(nameof(username));
+
+            if (!ValidateUsername(username))
+                throw new ArgumentException($"Invalid YouTube username [{username}].");
+
+            // Get parser
+            var parser = await GetUserPageParserAsync(username).ConfigureAwait(false);
+
+            // Extract info
+            var channelId = parser.ParseChannelId();
+
+            // Validate channel ID to make sure it was extracted successfully
+            if (!ValidateChannelId(channelId))
+                throw new ParseException("Could not parse channel ID.");
+
+            return channelId;
+        }
+
+        /// <inheritdoc />
         public async Task<Channel> GetChannelAsync(string channelId)
         {
             channelId.GuardNotNull(nameof(channelId));
+
             if (!ValidateChannelId(channelId))
                 throw new ArgumentException($"Invalid YouTube channel ID [{channelId}].", nameof(channelId));
 
@@ -30,21 +61,21 @@ namespace YoutubeExplode
                 throw new ParseException("Channel does not have any videos.");
 
             // Get video channel
-            return await GetVideoAuthorChannelAsync(video.Id).ConfigureAwait(false);
+            var channel = await GetVideoAuthorChannelAsync(video.Id).ConfigureAwait(false);
+
+            return channel;
         }
 
-        /// <summary>
-        /// Gets videos uploaded by channel with given ID.
-        /// The video list is truncated at given number of pages (1 page ≤ 200 videos).
-        /// </summary>
+        /// <inheritdoc />
         public async Task<IReadOnlyList<Video>> GetChannelUploadsAsync(string channelId, int maxPages)
         {
             channelId.GuardNotNull(nameof(channelId));
             maxPages.GuardPositive(nameof(maxPages));
+
             if (!ValidateChannelId(channelId))
                 throw new ArgumentException($"Invalid YouTube channel ID [{channelId}].", nameof(channelId));
 
-            // Compose a playlist ID
+            // Compose ID for the playlist that contains all videos uploaded by this channel
             var playlistId = "UU" + channelId.SubstringAfter("UC");
 
             // Get playlist
@@ -53,9 +84,7 @@ namespace YoutubeExplode
             return playlist.Videos;
         }
 
-        /// <summary>
-        /// Gets videos uploaded by channel with given ID.
-        /// </summary>
+        /// <inheritdoc />
         public Task<IReadOnlyList<Video>> GetChannelUploadsAsync(string channelId)
             => GetChannelUploadsAsync(channelId, int.MaxValue);
     }

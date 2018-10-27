@@ -1,4 +1,7 @@
 ﻿using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using JetBrains.Annotations;
 using YoutubeExplode.Internal;
 
 namespace YoutubeExplode.Models.MediaStreams
@@ -8,21 +11,22 @@ namespace YoutubeExplode.Models.MediaStreams
     /// </summary>
     public class MediaStream : Stream
     {
-        private readonly Stream _innerStream;
+        private readonly Stream _stream;
 
         /// <summary>
         /// Metadata associated with this stream.
         /// </summary>
+        [NotNull]
         public MediaStreamInfo Info { get; }
 
         /// <inheritdoc />
-        public override bool CanRead => _innerStream.CanRead;
+        public override bool CanRead => _stream.CanRead;
 
         /// <inheritdoc />
-        public override bool CanSeek => _innerStream.CanSeek;
+        public override bool CanSeek => _stream.CanSeek;
 
         /// <inheritdoc />
-        public override bool CanWrite => false;
+        public override bool CanWrite => _stream.CanWrite;
 
         /// <inheritdoc />
         public override long Length => Info.Size;
@@ -30,37 +34,35 @@ namespace YoutubeExplode.Models.MediaStreams
         /// <inheritdoc />
         public override long Position
         {
-            get => _innerStream.Position;
-            set => _innerStream.Position = value;
+            get => _stream.Position;
+            set => _stream.Position = value;
         }
 
         /// <summary />
-        public MediaStream(MediaStreamInfo mediaStreamInfo, Stream innerStream)
+        public MediaStream(MediaStreamInfo info, Stream stream)
         {
-            Info = mediaStreamInfo.GuardNotNull(nameof(mediaStreamInfo));
-            _innerStream = innerStream.GuardNotNull(nameof(innerStream));
-        }
-
-        /// <summary />
-        ~MediaStream()
-        {
-            Dispose(false);
+            Info = info.GuardNotNull(nameof(info));
+            _stream = stream.GuardNotNull(nameof(stream));
         }
 
         /// <inheritdoc />
-        public override void Flush() => _innerStream.Flush();
+        public override int Read(byte[] buffer, int offset, int count) => _stream.Read(buffer, offset, count);
 
         /// <inheritdoc />
-        public override int Read(byte[] buffer, int offset, int count) => _innerStream.Read(buffer, offset, count);
+        public override Task<int> ReadAsync(byte[] buffer, int offset, int count,
+            CancellationToken cancellationToken) => _stream.ReadAsync(buffer, offset, count, cancellationToken);
 
         /// <inheritdoc />
-        public override long Seek(long offset, SeekOrigin origin) => _innerStream.Seek(offset, origin);
+        public override long Seek(long offset, SeekOrigin origin) => _stream.Seek(offset, origin);
 
         /// <inheritdoc />
-        public override void SetLength(long value) => _innerStream.SetLength(value);
+        public override void Flush() => _stream.Flush();
 
         /// <inheritdoc />
-        public override void Write(byte[] buffer, int offset, int count) => _innerStream.Write(buffer, offset, count);
+        public override void SetLength(long value) => _stream.SetLength(value);
+
+        /// <inheritdoc />
+        public override void Write(byte[] buffer, int offset, int count) => _stream.Write(buffer, offset, count);
 
         /// <summary>
         /// Disposes resources.
@@ -68,8 +70,9 @@ namespace YoutubeExplode.Models.MediaStreams
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
+
             if (disposing)
-                _innerStream.Dispose();
+                _stream.Dispose();
         }
     }
 }

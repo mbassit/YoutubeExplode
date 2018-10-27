@@ -1,64 +1,64 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using YoutubeExplode.Internal;
-using YoutubeExplode.Models.ClosedCaptions;
-using YoutubeExplode.Services;
-
-#if NETSTANDARD2_0 || NET45 || NETCOREAPP1_0
 using System.IO;
 using System.Text;
 using System.Threading;
-#endif
+using System.Threading.Tasks;
+using YoutubeExplode.Internal;
+using YoutubeExplode.Internal.Parsers;
+using YoutubeExplode.Models.ClosedCaptions;
 
 namespace YoutubeExplode
 {
     public partial class YoutubeClient
     {
-        /// <summary>
-        /// Gets the actual closed caption track associated with given metadata.
-        /// </summary>
+        private async Task<ClosedCaptionTrackAjaxParser> GetClosedCaptionTrackAjaxParserAsync(string url)
+        {
+            var raw = await _httpClient.GetStringAsync(url).ConfigureAwait(false);
+            return ClosedCaptionTrackAjaxParser.Initialize(raw);
+        }
+
+        /// <inheritdoc />
         public async Task<ClosedCaptionTrack> GetClosedCaptionTrackAsync(ClosedCaptionTrackInfo info)
         {
             info.GuardNotNull(nameof(info));
 
-            // Get manifest
-            var raw = await _httpService.GetStringAsync(info.Url).ConfigureAwait(false);
-            var trackXml = XElement.Parse(raw).StripNamespaces();
+            // Get parser
+            var parser = await GetClosedCaptionTrackAjaxParserAsync(info.Url).ConfigureAwait(false);
 
             // Parse captions
-            var captions = new List<ClosedCaption>();
-            foreach (var captionXml in trackXml.Descendants("p"))
+            var closedCaptions = new List<ClosedCaption>();
+            foreach (var closedCaptionParser in parser.GetClosedCaptions())
             {
-                var text = (string) captionXml;
-                var offset = TimeSpan.FromMilliseconds((double) captionXml.Attribute("t"));
-                var duration = TimeSpan.FromMilliseconds((double) captionXml.Attribute("d"));
+                // Extract info
+                var text = closedCaptionParser.ParseText();
+
+                // Skip caption tracks without text
+                if (text.IsBlank())
+                    continue;
+
+                var offset = closedCaptionParser.ParseOffset();
+                var duration = closedCaptionParser.ParseDuration();
 
                 var caption = new ClosedCaption(text, offset, duration);
-                captions.Add(caption);
+                closedCaptions.Add(caption);
             }
 
-            return new ClosedCaptionTrack(info, captions);
+            return new ClosedCaptionTrack(info, closedCaptions);
         }
 
-#if NETSTANDARD2_0 || NET45 || NETCOREAPP1_0
-
-        /// <summary>
-        /// Gets the actual closed caption track associated with given metadata
-        /// and downloads it as SRT file.
-        /// </summary>
-        public async Task DownloadClosedCaptionTrackAsync(ClosedCaptionTrackInfo info, string filePath,
-            IProgress<double> progress, CancellationToken cancellationToken)
+        /// <inheritdoc />
+        public async Task DownloadClosedCaptionTrackAsync(ClosedCaptionTrackInfo info, Stream output,
+            IProgress<double> progress = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             info.GuardNotNull(nameof(info));
-            filePath.GuardNotNull(nameof(filePath));
+            output.GuardNotNull(nameof(output));
 
             // Get the track
             var track = await GetClosedCaptionTrackAsync(info).ConfigureAwait(false);
 
             // Save to file as SRT
-            using (var writer = File.CreateText(filePath))
+            using (var writer = new StreamWriter(output, Encoding.UTF8, 1024, true))
             {
                 for (var i = 0; i < track.Captions.Count; i++)
                 {
@@ -89,20 +89,17 @@ namespace YoutubeExplode
             }
         }
 
-        /// <summary>
-        /// Gets the actual closed caption track associated with given metadata
-        /// and downloads it as SRT file.
-        /// </summary>
-        public Task DownloadClosedCaptionTrackAsync(ClosedCaptionTrackInfo info, string filePath,
-            IProgress<double> progress)
-            => DownloadClosedCaptionTrackAsync(info, filePath, progress, CancellationToken.None);
+#if NETSTANDARD2_0 || NET45 || NETCOREAPP1_0
 
-        /// <summary>
-        /// Gets the actual closed caption track associated with given metadata
-        /// and downloads it as SRT file.
-        /// </summary>
-        public Task DownloadClosedCaptionTrackAsync(ClosedCaptionTrackInfo info, string filePath)
-            => DownloadClosedCaptionTrackAsync(info, filePath, null);
+        /// <inheritdoc />
+        public async Task DownloadClosedCaptionTrackAsync(ClosedCaptionTrackInfo info, string filePath,
+            IProgress<double> progress = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            filePath.GuardNotNull(nameof(filePath));
+
+            using (var output = File.Create(filePath))
+                await DownloadClosedCaptionTrackAsync(info, output, progress, cancellationToken).ConfigureAwait(false);
+        }
 
 #endif
     }

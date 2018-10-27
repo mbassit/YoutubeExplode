@@ -4,9 +4,9 @@ using System.Text.RegularExpressions;
 
 namespace YoutubeExplode.Internal
 {
-    internal static class UrlHelper
+    internal static class UrlEx
     {
-        public static string SetUrlQueryParameter(string url, string key, string value)
+        public static string SetQueryParameter(string url, string key, string value)
         {
             value = value ?? string.Empty;
 
@@ -40,7 +40,7 @@ namespace YoutubeExplode.Internal
             }
         }
 
-        public static string SetUrlRouteParameter(string url, string key, string value)
+        public static string SetRouteParameter(string url, string key, string value)
         {
             value = value ?? string.Empty;
 
@@ -68,13 +68,13 @@ namespace YoutubeExplode.Internal
             }
         }
 
-        public static Dictionary<string, string> SplitUrlQuery(string query)
+        public static Dictionary<string, string> SplitQuery(string query)
         {
             var dic = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            var rawParams = query.Split("&");
-            foreach (var rawParam in rawParams)
+            var paramsEncoded = query.TrimStart('?').Split("&");
+            foreach (var paramEncoded in paramsEncoded)
             {
-                var param = rawParam.UrlDecode();
+                var param = paramEncoded.UrlDecode();
 
                 // Look for the equals sign
                 var equalsPos = param.IndexOf('=');

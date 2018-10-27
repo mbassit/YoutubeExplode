@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using YoutubeExplode.Internal;
 
 namespace YoutubeExplode.Models.MediaStreams
@@ -15,72 +16,37 @@ namespace YoutubeExplode.Models.MediaStreams
         /// </summary>
         public static string GetFileExtension(this Container container)
         {
-            switch (container)
-            {
-                case Container.Mp4:
-                    return "mp4";
-                case Container.M4A:
-                    return "m4a";
-                case Container.WebM:
-                    return "webm";
-                case Container.Tgpp:
-                    return "3gpp";
-                case Container.Flv:
-                    return "flv";
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(container),
-                        $"Unexpected container type [{container}].");
-            }
+            // Tgpp gets special treatment
+            if (container == Container.Tgpp)
+                return "3gpp";
+
+            // Convert to lower case string
+            return container.ToString().ToLowerInvariant();
+        }
+
+        /// <summary>
+        /// Gets label for given video quality, as displayed on YouTube.
+        /// </summary>
+        public static string GetVideoQualityLabel(this VideoQuality videoQuality)
+        {
+            // Convert to string, strip non-digits and add "p"
+            return videoQuality.ToString().StripNonDigit() + "p";
         }
 
         /// <summary>
         /// Gets label for given video quality and framerate, as displayed on YouTube.
         /// </summary>
-        public static string GetVideoQualityLabel(this VideoQuality videoQuality, int framerate = 30)
+        public static string GetVideoQualityLabel(this VideoQuality videoQuality, int framerate)
         {
-            // Video quality
-            string qualityPart;
-            switch (videoQuality)
-            {
-                case VideoQuality.Low144:
-                    qualityPart = "144p";
-                    break;
-                case VideoQuality.Low240:
-                    qualityPart = "240p";
-                    break;
-                case VideoQuality.Medium360:
-                    qualityPart = "360p";
-                    break;
-                case VideoQuality.Medium480:
-                    qualityPart = "480p";
-                    break;
-                case VideoQuality.High720:
-                    qualityPart = "720p";
-                    break;
-                case VideoQuality.High1080:
-                    qualityPart = "1080p";
-                    break;
-                case VideoQuality.High1440:
-                    qualityPart = "1440p";
-                    break;
-                case VideoQuality.High2160:
-                    qualityPart = "2160p";
-                    break;
-                case VideoQuality.High3072:
-                    qualityPart = "3072p";
-                    break;
-                case VideoQuality.High4320:
-                    qualityPart = "4320p";
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(videoQuality),
-                        $"Unexpected video quality [{videoQuality}].");
-            }
+            framerate.GuardNotNegative(nameof(framerate));
 
-            // Framerate
-            var frameratePart = framerate > 30 ? framerate.ToString() : string.Empty;
+            // Framerate appears only if it's above 30
+            if (framerate <= 30)
+                return videoQuality.GetVideoQualityLabel();
 
-            return qualityPart + frameratePart;
+            // YouTube rounds framerate to nearest next ten
+            var framerateRounded = (int) Math.Ceiling(framerate / 10.0) * 10;
+            return videoQuality.GetVideoQualityLabel() + framerateRounded;
         }
 
         /// <summary>
@@ -153,6 +119,21 @@ namespace YoutubeExplode.Models.MediaStreams
         {
             streamInfos.GuardNotNull(nameof(streamInfos));
             return streamInfos.OrderByDescending(s => s.Bitrate).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Gets the expiry date of the stream URL.
+        /// Returns null if the expiry date could not be parsed.
+        /// </summary>
+        public static DateTimeOffset? GetUrlExpiryDate(this MediaStreamInfo streamInfo)
+        {
+            streamInfo.GuardNotNull(nameof(streamInfo));
+
+            var expiryDateUnix = Regex.Match(streamInfo.Url, @"expire[=/](\d+)").Groups[1].Value.ParseLongOrDefault();
+            if (expiryDateUnix == 0L)
+                return null;
+
+            return new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(expiryDateUnix);
         }
     }
 }

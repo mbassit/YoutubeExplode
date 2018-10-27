@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml.Linq;
-using AngleSharp.Dom;
 
 namespace YoutubeExplode.Internal
 {
@@ -95,14 +97,15 @@ namespace YoutubeExplode.Internal
                 : defaultValue;
         }
 
-        public static DateTime ParseDateTime(this string str)
+        public static DateTimeOffset ParseDateTimeOffset(this string str)
         {
-            return DateTime.Parse(str, DateTimeFormatInfo.InvariantInfo);
+            return DateTimeOffset.Parse(str, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AssumeUniversal);
         }
 
-        public static DateTime ParseDateTime(this string str, string format)
+        public static DateTimeOffset ParseDateTimeOffset(this string str, string format)
         {
-            return DateTime.ParseExact(str, format, DateTimeFormatInfo.InvariantInfo);
+            return DateTimeOffset.ParseExact(str, format, DateTimeFormatInfo.InvariantInfo,
+                DateTimeStyles.AssumeUniversal);
         }
 
         public static string Reverse(this string str)
@@ -123,6 +126,16 @@ namespace YoutubeExplode.Internal
         public static string UrlDecode(this string url)
         {
             return WebUtility.UrlDecode(url);
+        }
+
+        public static string HtmlEncode(this string url)
+        {
+            return WebUtility.HtmlEncode(url);
+        }
+
+        public static string HtmlDecode(this string url)
+        {
+            return WebUtility.HtmlDecode(url);
         }
 
         public static string JoinToString<T>(this IEnumerable<T> enumerable, string separator)
@@ -176,20 +189,27 @@ namespace YoutubeExplode.Internal
             return result;
         }
 
-        public static string TextEx(this INode node)
+        public static async Task CopyToAsync(this Stream source, Stream destination,
+            IProgress<double> progress = null, CancellationToken cancellationToken = default(CancellationToken),
+            int bufferSize = 81920)
         {
-            if (node.NodeType == NodeType.Text)
-                return node.TextContent;
+            var buffer = new byte[bufferSize];
 
-            var sb = new StringBuilder();
+            var totalBytesCopied = 0L;
+            int bytesCopied;
 
-            foreach (var child in node.ChildNodes)
-                sb.Append(child.TextEx());
+            do
+            {
+                // Read
+                bytesCopied = await source.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
 
-            if (node.NodeName == "BR")
-                sb.AppendLine();
+                // Write
+                await destination.WriteAsync(buffer, 0, bytesCopied, cancellationToken).ConfigureAwait(false);
 
-            return sb.ToString();
+                // Report progress
+                totalBytesCopied += bytesCopied;
+                progress?.Report(1.0 * totalBytesCopied / source.Length);
+            } while (bytesCopied > 0);
         }
     }
 }

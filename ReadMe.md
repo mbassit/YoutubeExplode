@@ -13,7 +13,7 @@ YoutubeExplode is a library that provides an interface to query metadata of YouT
 
 ## Download
 
-- Using NuGet: `Install-Package YoutubeExplode`
+- [NuGet](https://nuget.org/packages/YoutubeExplode): `Install-Package YoutubeExplode`
 - [Continuous integration](https://ci.appveyor.com/project/Tyrrrz/YoutubeExplode)
 
 ## Features
@@ -22,6 +22,7 @@ YoutubeExplode is a library that provides an interface to query metadata of YouT
 - Handles all types of videos, including legacy, signed, restricted, non-embeddable and unlisted videos
 - Works with media streams of all types -- muxed, embedded adaptive, dash adaptive
 - Downloads videos by exposing their media content as a stream
+- Supports media stream seeking and segmentation to circumvent throttling
 - Parses and downloads closed caption tracks
 - All metadata properties are exposed using strong types and enums
 - Provides static methods to validate IDs and to parse IDs from URLs
@@ -36,6 +37,8 @@ YoutubeExplode has a single entry point, the `YoutubeClient` class -- all availa
 A lot of helper methods are provided as extensions for models, make sure to include corresponding `using` statements to see them.
 
 Media streams come in 3 forms -- `Muxed` (video & audio), `Audio` (audio only) and `Video` (video only). Highest qualities are not available in muxed streams so you'll have to download separate streams and multiplex them yourself using tools like [ffmpeg](https://www.ffmpeg.org/).
+
+You can also use [YoutubeExplode.Converter](https://github.com/Tyrrrz/YoutubeExplode.Converter) to take care of multiplexing for you.
 
 ##### Parse ID from URL
 
@@ -97,7 +100,8 @@ var videoAuthor = video.Author; // "Igorrr Official"
 
 - [AngleSharp](https://github.com/AngleSharp/AngleSharp)
 - [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json)
-- [GalaSoft.MVVMLight](http://www.mvvmlight.net) (Only for demo)
-- [MaterialDesignInXamlToolkit](https://github.com/ButchersBoy/MaterialDesignInXamlToolkit) (Only for demo)
-- [Tyrrrz.Extensions](https://github.com/Tyrrrz/Extensions) (Only for demo)
-- [Tyrrrz.WpfExtensions](https://github.com/Tyrrrz/WpfExtensions) (Only for demo)
+- [GalaSoft.MVVMLight](http://www.mvvmlight.net)
+- [MaterialDesignInXamlToolkit](https://github.com/ButchersBoy/MaterialDesignInXamlToolkit)
+- [NUnit](https://github.com/nunit/nunit)
+- [Tyrrrz.Extensions](https://github.com/Tyrrrz/Extensions)
+- [Tyrrrz.WpfExtensions](https://github.com/Tyrrrz/WpfExtensions)

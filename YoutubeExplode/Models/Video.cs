@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using YoutubeExplode.Internal;
 
 namespace YoutubeExplode.Models
@@ -12,31 +13,36 @@ namespace YoutubeExplode.Models
         /// <summary>
         /// ID of this video.
         /// </summary>
+        [NotNull]
         public string Id { get; }
 
         /// <summary>
         /// Author of this video.
         /// </summary>
+        [NotNull]
         public string Author { get; }
 
         /// <summary>
         /// Upload date of this video.
         /// </summary>
-        public DateTime UploadDate { get; }
+        public DateTimeOffset UploadDate { get; }
 
         /// <summary>
         /// Title of this video.
         /// </summary>
+        [NotNull]
         public string Title { get; }
 
         /// <summary>
         /// Description of this video.
         /// </summary>
+        [NotNull]
         public string Description { get; }
 
         /// <summary>
         /// Thumbnails of this video.
         /// </summary>
+        [NotNull]
         public ThumbnailSet Thumbnails { get; }
 
         /// <summary>
@@ -47,15 +53,17 @@ namespace YoutubeExplode.Models
         /// <summary>
         /// Search keywords of this video.
         /// </summary>
+        [NotNull, ItemNotNull]
         public IReadOnlyList<string> Keywords { get; }
 
         /// <summary>
         /// Statistics of this video.
         /// </summary>
+        [NotNull]
         public Statistics Statistics { get; }
 
         /// <summary />
-        public Video(string id, string author, DateTime uploadDate, string title, string description,
+        public Video(string id, string author, DateTimeOffset uploadDate, string title, string description,
             ThumbnailSet thumbnails, TimeSpan duration, IReadOnlyList<string> keywords, Statistics statistics)
         {
             Id = id.GuardNotNull(nameof(id));

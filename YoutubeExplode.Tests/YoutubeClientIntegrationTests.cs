@@ -152,7 +152,7 @@ namespace YoutubeExplode.Tests
             var fileInfo = new FileInfo(outputFilePath);
 
             Assert.That(fileInfo.Exists, Is.True);
-            Assert.That(fileInfo.Length, Is.GreaterThan(0));
+            Assert.That(fileInfo.Length, Is.EqualTo(streamInfo.Size));
         }
 
         [Test]
@@ -218,6 +218,17 @@ namespace YoutubeExplode.Tests
         }
 
         [Test]
+        [TestCaseSource(typeof(Data), nameof(Data.GetUsernames))]
+        public async Task YoutubeClient_GetChannelIdAsync_Test(string username)
+        {
+            var client = new YoutubeClient();
+
+            var channelId = await client.GetChannelIdAsync(username);
+
+            Assert.That(channelId, Is.Not.Null.Or.Empty);
+        }
+
+        [Test]
         [TestCaseSource(typeof(Data), nameof(Data.GetChannelIds))]
         public async Task YoutubeClient_GetChannelAsync_Test(string channelId)
         {
@@ -236,6 +247,17 @@ namespace YoutubeExplode.Tests
             var client = new YoutubeClient();
 
             var videos = await client.GetChannelUploadsAsync(channelId);
+
+            Assert.That(videos, Is.Not.Null);
+        }
+
+        [Test]
+        [TestCaseSource(typeof(Data), nameof(Data.GetVideoSearchQueries))]
+        public async Task YoutubeClient_SearchVideosAsync_Test(string query)
+        {
+            var client = new YoutubeClient();
+
+            var videos = await client.SearchVideosAsync(query);
 
             Assert.That(videos, Is.Not.Null);
         }
