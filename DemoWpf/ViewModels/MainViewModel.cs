@@ -11,6 +11,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using GalaSoft.MvvmLight;
@@ -159,6 +160,7 @@ namespace DemoWpf.ViewModels
             }
             catch (Exception ex)
             {
+                Trace.WriteLine(ex);
                 IsBusy = false;
                 IsProgressIndeterminate = false;
                 MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
