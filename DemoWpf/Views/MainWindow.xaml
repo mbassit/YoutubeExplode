@@ -6,7 +6,7 @@
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     Title="YoutubeExplode Demo"
     Width="700"
-    Height="610"
+    Height="900"
     Background="{DynamicResource MaterialDesignPaper}"
     DataContext="{Binding MainViewModel, Source={StaticResource Locator}}"
     FocusManager.FocusedElement="{Binding ElementName=QueryTextBox}"
@@ -56,7 +56,7 @@
                 <ProgressBar
                     Background="Transparent"
                     IsIndeterminate="{Binding IsProgressIndeterminate}"
-                    Value="{Binding Progress, Mode=OneWay}" />
+                    Value="{Binding Progress, Mode=OneWay}" Height="7" />
             </StackPanel>
         </Border>
 
@@ -191,59 +191,9 @@
                     </StackPanel>
                 </materialDesign:Card>
 
-                <!--  Description  -->
-                <materialDesign:Card Margin="8,0,8,8">
-                    <Expander Background="Transparent">
-                        <Expander.Header>
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon
-                                    Width="18"
-                                    Height="18"
-                                    VerticalAlignment="Center"
-                                    Kind="CommentTextOutline" />
-                                <TextBlock
-                                    Margin="6,0,0,0"
-                                    VerticalAlignment="Center"
-                                    FontSize="15"
-                                    Text="Description" />
-                            </StackPanel>
-                        </Expander.Header>
-                        <TextBlock
-                            Margin="16,0,16,8"
-                            Foreground="{DynamicResource PrimaryTextBrush}"
-                            Text="{Binding Video.Description}"
-                            TextWrapping="Wrap" />
-                    </Expander>
-                </materialDesign:Card>
-
-                <!--  Keywords  -->
-                <materialDesign:Card Margin="8,0,8,8">
-                    <Expander Background="Transparent">
-                        <Expander.Header>
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon
-                                    Width="18"
-                                    Height="18"
-                                    VerticalAlignment="Center"
-                                    Kind="Magnify" />
-                                <TextBlock
-                                    Margin="6,0,0,0"
-                                    VerticalAlignment="Center"
-                                    FontSize="15"
-                                    Text="Keywords" />
-                            </StackPanel>
-                        </Expander.Header>
-                        <TextBlock
-                            Margin="16,0,16,8"
-                            Foreground="{DynamicResource PrimaryTextBrush}"
-                            Text="{Binding Video.Keywords, Converter={x:Static converters:ArrayToStringConverter.Instance}}"
-                            TextWrapping="Wrap" />
-                    </Expander>
-                </materialDesign:Card>
-
                 <!--  Media streams  -->
                 <materialDesign:Card Margin="8,0,8,8">
-                    <Expander Background="Transparent">
+                    <Expander Background="Transparent" IsExpanded="True">
                         <Expander.Header>
                             <StackPanel Orientation="Horizontal">
                                 <materialDesign:PackIcon
@@ -379,6 +329,56 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                         </StackPanel>
+                    </Expander>
+                </materialDesign:Card>
+
+                <!--  Description  -->
+                <materialDesign:Card Margin="8,0,8,8">
+                    <Expander Background="Transparent">
+                        <Expander.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon
+                                    Width="18"
+                                    Height="18"
+                                    VerticalAlignment="Center"
+                                    Kind="CommentTextOutline" />
+                                <TextBlock
+                                    Margin="6,0,0,0"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Text="Description" />
+                            </StackPanel>
+                        </Expander.Header>
+                        <TextBlock
+                            Margin="16,0,16,8"
+                            Foreground="{DynamicResource PrimaryTextBrush}"
+                            Text="{Binding Video.Description}"
+                            TextWrapping="Wrap" />
+                    </Expander>
+                </materialDesign:Card>
+
+                <!--  Keywords  -->
+                <materialDesign:Card Margin="8,0,8,8">
+                    <Expander Background="Transparent">
+                        <Expander.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon
+                                    Width="18"
+                                    Height="18"
+                                    VerticalAlignment="Center"
+                                    Kind="Magnify" />
+                                <TextBlock
+                                    Margin="6,0,0,0"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    Text="Keywords" />
+                            </StackPanel>
+                        </Expander.Header>
+                        <TextBlock
+                            Margin="16,0,16,8"
+                            Foreground="{DynamicResource PrimaryTextBrush}"
+                            Text="{Binding Video.Keywords, Converter={x:Static converters:ArrayToStringConverter.Instance}}"
+                            TextWrapping="Wrap" />
                     </Expander>
                 </materialDesign:Card>
 
