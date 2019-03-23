@@ -21,7 +21,7 @@
             TextElement.Foreground="{DynamicResource SecondaryInverseTextBrush}">
             <StackPanel Orientation="Vertical">
                 <!--  Query  -->
-                <materialDesign:Card Margin="12">
+                <materialDesign:Card Margin="10">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -51,7 +51,7 @@
                         </Button>
                     </Grid>
                 </materialDesign:Card>
-
+                <TextBlock Margin="10,0,5,5"><Hyperlink PreviewMouseLeftButtonDown="HyperlinkPreviewMouseLeftButtonDown" Foreground="Coral">C:\Users\Marco\Downloads\YoutubeExplode</Hyperlink></TextBlock>
                 <!--  Progress  -->
                 <ProgressBar
                     Background="Transparent"
