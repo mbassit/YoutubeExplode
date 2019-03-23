@@ -1,3 +1,30 @@
+### v4.6.7 (16-Mar-2019)
+
+- Fixed some more inconsistencies with how links in video descriptions are rendered.
+
+### v4.6.6 (24-Feb-2019)
+
+- Fixed an issue where `JsonReaderException` was thrown when downloading videos that were blocked on copyright grounds.
+
+### v4.6.5 (16-Feb-2019)
+
+- Fixed an issue where parser methods for channel ID and username failed if the URL contained query parameters.
+- Fixed some inconsistencies with how links in video descriptions are rendered.
+
+### v4.6.4 (16-Jan-2019)
+
+- Pinned AngleSharp dependency to version 0.9.11 because newer versions contain breaking changes that are currently incompatible with YoutubeExplode.
+- Improved the implementation of `GetChannelAsync` so that it's more fast and works on channels without any uploaded videos.
+
+### v4.6.3 (13-Jan-2019)
+
+- Fixed an issue where closed caption tracks were sometimes missing whitespace between words in auto-generated tracks.
+- Added an extension method to get all distinct video quality labels from a set -- `MediaStreamInfoSet.GetAllVideoQualityLabels`.
+
+### v4.6.2 (04-Jan-2019)
+
+- Fixed an issue where `GetVideoMediaStreamInfosAsync` returned empty for live stream recording videos.
+
 ### v4.6.1 (03-Dec-2018)
 
 - Fixed sporadic failures in `GetVideoAuthorChannelAsync` and `GetChannelIdAsync`.

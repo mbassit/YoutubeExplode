@@ -30,28 +30,45 @@ namespace YoutubeExplode.Internal.Parsers
 
             foreach (var childNode in childNodes)
             {
+                // If it's a text node - display text content
                 if (childNode.NodeType == NodeType.Text)
                 {
                     buffer.Append(childNode.TextContent);
                 }
+                // If it's an anchor node - perform some special transformation
                 else if (childNode is IHtmlAnchorElement anchorNode)
                 {
-                    // If it uses YouTube redirect - get the actual link
-                    if (anchorNode.PathName.Equals("/redirect", StringComparison.OrdinalIgnoreCase))
+                    // If the link appears shortened - get full link
+                    if (anchorNode.InnerText.EndsWith("...", StringComparison.OrdinalIgnoreCase))
                     {
-                        // Get query parameters
-                        var queryParams = UrlEx.SplitQuery(anchorNode.Search);
+                        // Get href
+                        var href = anchorNode.GetAttribute("href");
 
-                        // Get the actual href
-                        var actualHref = queryParams["q"].UrlDecode();
+                        // If it's a relative link that goes through YouTube redirect - extract the actual link
+                        if (href.StartsWith("/redirect", StringComparison.OrdinalIgnoreCase))
+                        {
+                            // Get query parameters
+                            var queryParams = UrlEx.SplitQuery(anchorNode.Search);
 
-                        buffer.Append(actualHref);
+                            // Get the actual href
+                            href = queryParams["q"];
+                        }
+                        // If it's a relative link - prepend YouTube's host
+                        else if (href.StartsWith("/", StringComparison.OrdinalIgnoreCase))
+                        {
+                            // Prepend host to the link to make it absolute
+                            href = "https://youtube.com" + anchorNode.GetAttribute("href");
+                        }
+
+                        buffer.Append(href);
                     }
+                    // Otherwise - just use its inner text
                     else
                     {
-                        buffer.Append(anchorNode.TextContent);
+                        buffer.Append(anchorNode.InnerText);
                     }
                 }
+                // If it's a break row node - append new line
                 else if (childNode is IHtmlBreakRowElement)
                 {
                     buffer.AppendLine();
@@ -70,11 +87,15 @@ namespace YoutubeExplode.Internal.Parsers
         public long ParseDislikeCount() => _root.QuerySelector("button.like-button-renderer-dislike-button")?.Text()
             .StripNonDigit().ParseLongOrDefault() ?? 0;
 
+        private string ParseConfigRaw() => Regex.Match(_root.Source.Text,
+                @"ytplayer\.config = (?<Json>\{[^\{\}]*(((?<Open>\{)[^\{\}]*)+((?<Close-Open>\})[^\{\}]*)+)*(?(Open)(?!))\})")
+            .Groups["Json"].Value;
+
+        public bool ParseIsConfigAvailable() => ParseConfigRaw().IsNotBlank();
+
         public ConfigParser GetConfig()
         {
-            var configRaw = Regex.Match(_root.Source.Text,
-                    @"ytplayer\.config = (?<Json>\{[^\{\}]*(((?<Open>\{)[^\{\}]*)+((?<Close-Open>\})[^\{\}]*)+)*(?(Open)(?!))\})")
-                .Groups["Json"].Value;
+            var configRaw = ParseConfigRaw();
             var configJson = JToken.Parse(configRaw);
 
             return new ConfigParser(configJson);

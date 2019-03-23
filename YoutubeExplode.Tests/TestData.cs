@@ -69,6 +69,7 @@ namespace YoutubeExplode.Tests
             yield return new TestCaseData("ZGdLIwrGHG8"); // unlisted
             yield return new TestCaseData("H1O_-JVbl_k"); // very large video
             yield return new TestCaseData("NgTdNd5lkvY"); // controversial video
+            yield return new TestCaseData("rsAAeyAr-9Y"); // recording of a live stream
 
             // Include nested
             foreach (var testCaseData in GetVideoIds_Valid_Available_Playable_WithClosedCaptions())
@@ -116,10 +117,9 @@ namespace YoutubeExplode.Tests
             yield return new TestCaseData("PL601B2E69B03FAB9D"); // short??
             yield return new TestCaseData("PLI5YfMzCfRtZ8eV576YoY3vIYrHjyVm_e"); // normal
             yield return new TestCaseData("PLWwAypAcFRgKFlxtLbn_u14zddtDJj3mk"); // large
-            // TODO: uncomment the following tests when a fix is found for these playlists.
-            //yield return new TestCaseData("RD1hu8-y6fKg0"); // video mix
-            //yield return new TestCaseData("RDMMU-ty-2B02VY"); // my mix
-            //yield return new TestCaseData("RDEMNJhLy4rECJ_fG8NL-joqsg"); // music mix
+            yield return new TestCaseData("RD1hu8-y6fKg0"); // video mix
+            yield return new TestCaseData("RDMMU-ty-2B02VY"); // my mix
+            yield return new TestCaseData("RDEMNJhLy4rECJ_fG8NL-joqsg"); // music mix
             yield return new TestCaseData("ULl6WWX-BgIiE"); // channel video mix
             yield return new TestCaseData("UUTMt7iMWa7jy0fNXIktwyLA"); // user uploads
             yield return new TestCaseData("PUTMt7iMWa7jy0fNXIktwyLA"); // popular user uploads
@@ -133,7 +133,6 @@ namespace YoutubeExplode.Tests
         public static IEnumerable GetUserUrls_Invalid()
         {
             yield return new TestCaseData("https://www.youtube.com/user/P_roZD/"); // username cannot contain anything other than A-Z, a-z, 0-9
-            yield return new TestCaseData("http://www.youtube.com/user/Pr?-0oZD/");
             yield return new TestCaseData("www.youtube.com/user/ProZD1234567890ABCDEF/"); // max allowed username is 20 character
             yield return new TestCaseData("youtube.com/user//asdaz");
             yield return new TestCaseData("https://www.example.com/user/ProZD/");
