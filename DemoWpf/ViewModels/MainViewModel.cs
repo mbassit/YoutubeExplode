@@ -8,6 +8,7 @@
  *    [16 dic 2018]: great, in Visual Studio 2017 ver 15.9.4 the "Fetch" operation (but why not the "Pull" as well?) shows a drop down to choose between "origin" and "upstream", and after fetching from "upstream" I was able
  *    to do a "Merge" selecting "upstream/master" in drop down into my master or feature branch.
  * 4) Now merge "upstream/master" into whatever you want, eg. your forked repo master branch (and then push if you want this to be sent to your remote branch on GitHub)
+ * TODO: switch the WPF app to consume the YoutubeExplode project as nuget package, so that updates can be easily integrated (when Youtube-side changes happen): https://www.nuget.org/packages/YoutubeExplode/4.7.2
 */
 
 using System;
